@@ -1,11 +1,13 @@
 import re
 
+from scanner.base_scanner import BaseScanner
 
-class KeywordScanner:
+
+class KeywordScanner(BaseScanner):
 
     def __init__(self):
 
-        self.keywords = [
+        keywords = [
             "секретно",
             "конфиденциально",
             "пароль",
@@ -14,19 +16,17 @@ class KeywordScanner:
             "логин"
         ]
 
+        pattern = (
+            r"\b("
+            + "|".join(keywords)
+            + r")\b"
+        )
+
+        super().__init__(pattern)
+
     def find_keywords(self, text):
 
-        found_keywords = []
-
-        for word in self.keywords:
-
-            pattern = rf"\b{re.escape(word)}\b"
-
-            if re.search(
-                pattern,
-                text,
-                re.IGNORECASE
-            ):
-                found_keywords.append(word)
-
-        return list(set(found_keywords))
+        return self.find_matches(
+            text,
+            re.IGNORECASE
+        )

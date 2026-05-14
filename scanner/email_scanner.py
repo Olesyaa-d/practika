@@ -1,20 +1,17 @@
-import re
+from scanner.base_scanner import BaseScanner
 
 
-class EmailScanner:
+class EmailScanner(BaseScanner):
 
     def __init__(self):
 
-        self.email_pattern = (
+        pattern = (
             r"[a-zA-Z0-9._%+-]+@"
             r"[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}"
         )
 
+        super().__init__(pattern)
+
     def find_emails(self, text):
 
-        emails = re.findall(
-            self.email_pattern,
-            text
-        )
-
-        return list(set(emails))
+        return self.find_matches(text)

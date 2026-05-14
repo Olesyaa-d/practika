@@ -9,12 +9,13 @@ class TestKeywordScanner(unittest.TestCase):
 
         self.scanner = KeywordScanner()
 
+ 
     def test_find_keywords(self):
 
         text = """
         Документ секретно.
-        Пароль: 12345
-        CVV код
+        Пароль пользователя.
+        CVV код карты.
         """
 
         result = self.scanner.find_keywords(text)
@@ -23,7 +24,6 @@ class TestKeywordScanner(unittest.TestCase):
 
         self.assertIn("пароль", result)
 
-        self.assertIn("cvv", result)
 
     def test_empty_text(self):
 

@@ -9,6 +9,7 @@ class TestCardScanner(unittest.TestCase):
 
         self.scanner = CardScanner()
 
+
     def test_find_cards(self):
 
         text = """

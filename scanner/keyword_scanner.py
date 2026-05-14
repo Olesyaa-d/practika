@@ -26,7 +26,9 @@ class KeywordScanner(BaseScanner):
 
     def find_keywords(self, text):
 
-        return self.find_matches(
+        matches = self.find_matches(
             text,
             re.IGNORECASE
         )
+
+        return [word.lower() for word in matches]

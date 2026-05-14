@@ -1,2 +1,2 @@
-gui/__pycache__
-scanner/__pycache__
+__pycache__/
+*.pyc

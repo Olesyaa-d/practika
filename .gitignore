@@ -1,1 +1,2 @@
-tests/test.py
+gui/__pycache__
+scanner/__pycache__

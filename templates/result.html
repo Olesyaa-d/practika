@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="ru">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Результат</title>
+</head>
+
+<body>
+
+    <h1>Результат анализа</h1>
+
+    <h2>Файл: {{ filename }}</h2>
+
+    <!-- EMAIL -->
+
+    <h3>
+        EMAIL ({{ result.emails|length }})
+    </h3>
+
+    <ul>
+        {% for email in result.emails %}
+            <li>{{ email }}</li>
+        {% endfor %}
+    </ul>
+
+    <!-- КАРТЫ -->
+
+    <h3>
+        НОМЕРА КАРТ ({{ result.cards|length }})
+    </h3>
+
+    <ul>
+        {% for card in result.cards %}
+            <li>{{ card }}</li>
+        {% endfor %}
+    </ul>
+
+    <!-- KEYWORDS -->
+
+    <h3>
+        КОДОВЫЕ СЛОВА ({{ result.keywords|length }})
+    </h3>
+
+    <ul>
+        {% for word in result.keywords %}
+            <li>{{ word }}</li>
+        {% endfor %}
+    </ul>
+
+    <a href="/">
+        Проверить другой файл
+    </a>
+
+</body>
+</html>

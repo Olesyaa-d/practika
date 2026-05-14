@@ -1,6 +1,0 @@
-$ echo test.py >> .gitignore
-  
-$ git rm --cached test.py
-rm 'test.py'
-  
-$ git commit -m "Start ignoring test.py"

@@ -1,26 +1,34 @@
-from scanner.scanners.email_scanner import EmailScanner
-from scanner.scanners.card_scanner import CardScanner
-from scanner.scanners.keyword_scanner import KeywordScanner
-
-
 class ScannerPipeline:
 
     def __init__(self):
+        # список всех сканеров
+        self.scanners = []
 
-        self.scanners = [
-            EmailScanner(),
-            CardScanner(),
-            KeywordScanner()
-        ]
+    def add_scanner(self, scanner):
+        """
+        Добавляет сканер в pipeline
+        """
+        self.scanners.append(scanner)
 
-    def run(self, text):
+    def run(self, text: str):
+        """
+        Запускает все сканеры и возвращает результаты
+        """
+
+        if not self.scanners:
+            print("WARNING: pipeline has no scanners")
 
         results = []
 
         for scanner in self.scanners:
 
-            result = scanner.scan(text)
+            try:
+                result = scanner.scan(text)
 
-            results.append(result)
+                if result is not None:
+                    results.append(result)
+
+            except Exception as e:
+                print(f"Scanner error in {scanner}: {e}")
 
         return results

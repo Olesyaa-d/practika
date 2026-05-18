@@ -14,12 +14,16 @@ class EmailScanner(BaseScanner):
 
     def scan(self, text):
 
+        print("EMAIL SCANNER RUNNING")
+
+        text = text.strip()
+
         emails = re.findall(
             self.EMAIL_PATTERN,
             text
         )
 
-        emails = list(set(emails))
+        emails = list(set(email.lower() for email in emails))
 
         return EmailResult(
             scanner_name="email_scanner",

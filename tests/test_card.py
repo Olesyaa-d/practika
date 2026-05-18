@@ -1,6 +1,6 @@
 import unittest
 
-from scanner.card_scanner import CardScanner
+from scanner.scanners.card_scanner import CardScanner
 
 
 class TestCardScanner(unittest.TestCase):

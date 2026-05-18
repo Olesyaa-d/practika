@@ -1,6 +1,6 @@
 import unittest
 
-from scanner.email_scanner import EmailScanner
+from scanner.scanners.email_scanner import EmailScanner
 
 
 class TestEmailScanner(unittest.TestCase):

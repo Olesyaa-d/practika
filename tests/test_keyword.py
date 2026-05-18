@@ -1,6 +1,6 @@
 import unittest
 
-from scanner.keyword_scanner import KeywordScanner
+from scanner.scanners.keyword_scanner import KeywordScanner
 
 
 class TestKeywordScanner(unittest.TestCase):

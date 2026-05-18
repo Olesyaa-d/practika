@@ -1,56 +1,33 @@
-<!DOCTYPE html>
-<html lang="ru">
+<{% for result in results %}
 
-<head>
-    <meta charset="UTF-8">
-    <title>Результат</title>
-</head>
+    <h2>{{ result.scanner_name }}</h2>
 
-<body>
+    <p>Найдено: {{ result.count }}</p>
 
-    <h1>Результат анализа</h1>
-
-    <h2>Файл: {{ filename }}</h2>
-
-    <!-- EMAIL -->
-
-    <h3>
-        EMAIL ({{ result.emails|length }})
-    </h3>
-
-    <ul>
+    {% if result.emails is defined %}
+        <ul>
         {% for email in result.emails %}
             <li>{{ email }}</li>
         {% endfor %}
-    </ul>
+        </ul>
+    {% endif %}
 
-    <!-- КАРТЫ -->
-
-    <h3>
-        НОМЕРА КАРТ ({{ result.cards|length }})
-    </h3>
-
-    <ul>
+    {% if result.cards is defined %}
+        <ul>
         {% for card in result.cards %}
             <li>{{ card }}</li>
         {% endfor %}
-    </ul>
+        </ul>
+    {% endif %}
 
-    <!-- KEYWORDS -->
-
-    <h3>
-        КОДОВЫЕ СЛОВА ({{ result.keywords|length }})
-    </h3>
-
-    <ul>
+    {% if result.keywords is defined %}
+        <ul>
         {% for word in result.keywords %}
             <li>{{ word }}</li>
         {% endfor %}
-    </ul>
+        </ul>
+    {% endif %}
 
-    <a href="/">
-        Проверить другой файл
-    </a>
+{% endfor %}
 
-</body>
-</html>
+<a href="/">Назад</a>

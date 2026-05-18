@@ -1,0 +1,28 @@
+import re
+
+from scanner.base.base_scanner import BaseScanner
+
+from scanner.results.email_result import EmailResult
+
+
+class EmailScanner(BaseScanner):
+
+    EMAIL_PATTERN = (
+        r"[a-zA-Z0-9._%+-]+@"
+        r"[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}"
+    )
+
+    def scan(self, text):
+
+        emails = re.findall(
+            self.EMAIL_PATTERN,
+            text
+        )
+
+        emails = list(set(emails))
+
+        return EmailResult(
+            scanner_name="email_scanner",
+            count=len(emails),
+            emails=emails
+        )

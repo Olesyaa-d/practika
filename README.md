@@ -8,6 +8,6 @@
 1. Установить python
 2. Клонировать репозиторий
 ## Запуск программы:
-ввести команду: python main.py
+ввести команду: python app.py
 ## Запуск тестов:
-команда: python -m unittest
+команда: python -m unittest discover

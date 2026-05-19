@@ -2,8 +2,6 @@ import os
 
 from flask import Flask, render_template, request
 
-from flask_migrate import Migrate
-
 from models import db, Document, ScanResult
 
 from scanner.pipeline.scanner_pipeline import ScannerPipeline
@@ -31,8 +29,6 @@ app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
 
 
 db.init_app(app)
-migrate = Migrate(app, db)
-
 
 pipeline = ScannerPipeline()
 

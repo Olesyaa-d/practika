@@ -12,11 +12,66 @@
 - Анализ содержимого через pipeline архитектуру
 - Возврат структурированного результата
 - Отображение результата на HTML странице
-## Установка и запуск
+## Установка проекта
 
 ### 1. Клонировать репозиторий
-### 2. установить зависимости: pip install flask
+```bash
+git clone <repository_url>
+cd <project_folder>
+```
+
+---
+
+### 2. Создать виртуальное окружение
+```bash
+python -m venv venv
+```
+
+---
+
+### 3. Активировать виртуальное окружение
+
+#### Windows
+```bash
+venv\Scripts\activate
+```
+
+#### Linux / MacOS
+```bash
+source venv/bin/activate
+```
+
+---
+
+### 4. Установить зависимости
+```bash
+pip install -r requirements.txt
+```
+
+---
+
 ## Запуск приложения
+
+```bash
 python app.py
+```
+
+После запуска Flask сервер будет доступен по адресу:
+
+```text
+http://127.0.0.1:5000
+```
+
+---
+
 ## Запуск тестов
+
+### Запуск всех тестов
+```bash
 python -m unittest discover tests
+```
+
+### Запуск отдельного теста
+```bash
+python -m unittest tests/test_email.py
+```

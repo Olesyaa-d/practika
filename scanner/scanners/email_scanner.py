@@ -1,7 +1,6 @@
 import re
 
 from scanner.base.base_scanner import BaseScanner
-
 from scanner.results.email_result import EmailResult
 
 
@@ -12,15 +11,11 @@ class EmailScanner(BaseScanner):
         r"[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}"
     )
 
-    def scan(self, text):
-
-        print("EMAIL SCANNER RUNNING")
-
-        text = text.strip()
+    def scan(self, context):
 
         emails = re.findall(
             self.EMAIL_PATTERN,
-            text
+            context.normalized_text
         )
 
         emails = list(set(email.lower() for email in emails))

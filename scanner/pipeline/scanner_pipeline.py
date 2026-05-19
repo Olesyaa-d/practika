@@ -1,34 +1,40 @@
+import re
+
+from scanner.context.analysis_context import AnalysisContext
+from scanner.preprocessing.text_tokenizer import TextTokenizer
+
+
 class ScannerPipeline:
 
     def __init__(self):
-        # список всех сканеров
         self.scanners = []
+        self.tokenizer = TextTokenizer()
 
     def add_scanner(self, scanner):
-        """
-        Добавляет сканер в pipeline
-        """
         self.scanners.append(scanner)
 
-    def run(self, text: str):
-        """
-        Запускает все сканеры и возвращает результаты
-        """
+    def create_context(self, text: str) -> AnalysisContext:
+        normalized_text = re.sub(r"\s+", " ", text)
+        tokens = self.tokenizer.tokenize(normalized_text)
 
+        return AnalysisContext(
+            raw_text=text,
+            normalized_text=normalized_text,
+            tokens=tokens
+        )
+
+    def run(self, text: str):
         if not self.scanners:
             print("WARNING: pipeline has no scanners")
+
+        context = self.create_context(text)
 
         results = []
 
         for scanner in self.scanners:
+            result = scanner.scan(context)
 
-            try:
-                result = scanner.scan(text)
-
-                if result is not None:
-                    results.append(result)
-
-            except Exception as e:
-                print(f"Scanner error in {scanner}: {e}")
+            if result is not None:
+                results.append(result)
 
         return results

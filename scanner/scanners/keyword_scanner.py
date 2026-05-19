@@ -1,7 +1,4 @@
-import re
-
 from scanner.base.base_scanner import BaseScanner
-
 from scanner.results.keyword_result import KeywordResult
 
 
@@ -17,26 +14,15 @@ class KeywordScanner(BaseScanner):
         "логин"
     ]
 
-    PATTERN = (
-        r"\b("
-        + "|".join(KEYWORDS)
-        + r")\b"
-    )
+    def scan(self, context):
 
-    def scan(self, text):
+        keywords = [
+            word
+            for word in self.KEYWORDS
+            if word.lower() in context.tokens
+        ]
 
-        matches = re.findall(
-            self.PATTERN,
-            text,
-            re.IGNORECASE
-        )
-
-        keywords = list(
-            set(
-                word.lower()
-                for word in matches
-            )
-        )
+        keywords = list(set(keywords))
 
         return KeywordResult(
             scanner_name="keyword_scanner",

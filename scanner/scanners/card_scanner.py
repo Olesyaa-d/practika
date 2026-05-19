@@ -1,7 +1,6 @@
 import re
 
 from scanner.base.base_scanner import BaseScanner
-
 from scanner.results.card_result import CardResult
 
 
@@ -13,11 +12,11 @@ class CardScanner(BaseScanner):
     \b
     """
 
-    def scan(self, text):
+    def scan(self, context):
 
         cards = re.findall(
             self.CARD_PATTERN,
-            text,
+            context.normalized_text,
             re.VERBOSE
         )
 

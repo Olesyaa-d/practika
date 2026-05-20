@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <title>Обычные документы</title>
+</head>
+<body>
+
+    <h1>Обычные документы</h1>
+
+    <a href="/regular/upload">
+        <button>Загрузить обычный документ</button>
+    </a>
+
+    <hr>
+
+    {% if documents %}
+
+        <ul>
+            {% for document in documents %}
+                <li>
+                    <b>{{ document.filename }}</b>
+                    <br>
+                    Тип: {{ document.type }}
+                    <br>
+                    Дата загрузки: {{ document.created_at }}
+
+                    <br><br>
+
+                    <a href="/regular/{{ document.id }}/download">
+                        Скачать
+                    </a>
+
+                    <form
+                        action="/regular/{{ document.id }}/delete"
+                        method="post"
+                        style="display:inline;"
+                    >
+                        <button type="submit">
+                            Удалить
+                        </button>
+                    </form>
+                </li>
+
+                <hr>
+            {% endfor %}
+        </ul>
+
+    {% else %}
+
+        <p>Обычные документы пока не загружены.</p>
+
+    {% endif %}
+
+    <br>
+
+    <a href="/">На главную</a>
+
+</body>
+</html>

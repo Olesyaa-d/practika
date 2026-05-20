@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <title>Загрузка эталонного документа</title>
+</head>
+<body>
+
+    <h1>Загрузка эталонного документа</h1>
+
+    <form
+        action="/protected/upload"
+        method="post"
+        enctype="multipart/form-data"
+    >
+
+        <input
+            type="file"
+            name="file"
+            accept=".txt"
+            required
+        >
+
+        <button type="submit">
+            Загрузить
+        </button>
+
+    </form>
+
+    <br>
+
+    <a href="/protected">
+        Назад к списку
+    </a>
+
+</body>
+</html>

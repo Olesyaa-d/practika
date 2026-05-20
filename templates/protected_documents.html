@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <title>Защищаемые документы</title>
+</head>
+<body>
+
+    <h1>Защищаемые документы</h1>
+
+    <a href="/protected/upload">
+        <button>Загрузить эталонный документ</button>
+    </a>
+
+    <hr>
+
+    {% if documents %}
+
+        <ul>
+            {% for document in documents %}
+                <li>
+                    <b>{{ document.filename }}</b>
+                    <br>
+                    Тип: {{ document.type }}
+                    <br>
+                    Дата загрузки: {{ document.created_at }}
+
+                    <br><br>
+
+                    <a href="/protected/{{ document.id }}/download">
+                        Скачать
+                    </a>
+
+                    <form
+                        action="/protected/{{ document.id }}/delete"
+                        method="post"
+                        style="display:inline;"
+                    >
+                        <button type="submit">
+                            Удалить
+                        </button>
+                    </form>
+                </li>
+
+                <hr>
+            {% endfor %}
+        </ul>
+
+    {% else %}
+
+        <p>Защищаемые документы пока не загружены.</p>
+
+    {% endif %}
+
+    <br>
+
+    <a href="/">На главную</a>
+
+</body>
+</html>

@@ -1,28 +1,38 @@
 import os
 
-from flask import Flask, render_template, request
+from flask import (
+    Flask,
+    render_template,
+    request,
+    send_file,
+    redirect,
+    url_for
+)
 
 from models import db, Document, ScanResult
 
 from scanner.pipeline.scanner_pipeline import ScannerPipeline
 from scanner.services.file_scanner import FileScanner
 
+from scanner.scanners.email_scanner import EmailScanner
+from scanner.scanners.card_scanner import CardScanner
+from scanner.scanners.keyword_scanner import KeywordScanner
 
 app = Flask(__name__)
 
 
 UPLOAD_FOLDER = "uploads"
+PROTECTED_UPLOAD_FOLDER = os.path.join(UPLOAD_FOLDER, "protected")
+
 os.makedirs(UPLOAD_FOLDER, exist_ok=True)
+os.makedirs(PROTECTED_UPLOAD_FOLDER, exist_ok=True)
 
 app.config["UPLOAD_FOLDER"] = UPLOAD_FOLDER
 
-# DB (SQLite)
-import os as _os
-
-basedir = _os.path.abspath(_os.path.dirname(__file__))
+basedir = os.path.abspath(os.path.dirname(__file__))
 
 app.config["SQLALCHEMY_DATABASE_URI"] = (
-    "sqlite:///" + _os.path.join(basedir, "database", "app.db")
+    "sqlite:///" + os.path.join(basedir, "database", "app.db")
 )
 
 app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
@@ -30,11 +40,8 @@ app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
 
 db.init_app(app)
 
-pipeline = ScannerPipeline()
 
-from scanner.scanners.email_scanner import EmailScanner
-from scanner.scanners.card_scanner import CardScanner
-from scanner.scanners.keyword_scanner import KeywordScanner
+pipeline = ScannerPipeline()
 
 pipeline.add_scanner(EmailScanner())
 pipeline.add_scanner(CardScanner())
@@ -63,41 +70,40 @@ def scan_file():
 
     uploaded_file.save(file_path)
 
-    # читаем файл
-    with open(file_path, "r", encoding="utf-8", errors="ignore") as f:
-        file_text = f.read()
+    with open(
+        file_path,
+        "r",
+        encoding="utf-8",
+        errors="ignore"
+    ) as file:
+        file_text = file.read()
 
-
-    # сохраняем документ
     document = Document(
         text=file_text,
-        type=uploaded_file.filename.split(".")[-1]
+        type="scan",
+        filename=uploaded_file.filename,
+        file_path=file_path
     )
 
     db.session.add(document)
     db.session.commit()
 
-    # запускаем pipeline (ВАЖНО: теперь это список объектов)
     results = scanner.scan_file(file_path)
 
     emails = []
     cards = []
     keywords = []
 
-    for r in results:
+    for result in results:
 
-        # email result
-        if hasattr(r, "emails"):
-            emails.extend(getattr(r, "emails", []))
+        if hasattr(result, "emails"):
+            emails.extend(result.emails)
 
-        # card result
-        if hasattr(r, "cards"):
-            cards.extend(getattr(r, "cards", []))
+        if hasattr(result, "cards"):
+            cards.extend(result.cards)
 
-        # keyword result
-        if hasattr(r, "keywords"):
-            keywords.extend(getattr(r, "keywords", []))
-
+        if hasattr(result, "keywords"):
+            keywords.extend(result.keywords)
 
     scan_result = ScanResult(
         document_id=document.id,
@@ -118,5 +124,95 @@ def scan_file():
     )
 
 
+@app.route("/protected")
+def protected_documents():
+
+    documents = Document.query.filter_by(
+        type="защита"
+    ).order_by(
+        Document.created_at.desc()
+    ).all()
+
+    return render_template(
+        "protected_documents.html",
+        documents=documents
+    )
+
+
+@app.route("/protected/upload", methods=["GET", "POST"])
+def upload_protected_document():
+
+    if request.method == "GET":
+        return render_template("upload_protected_document.html")
+
+    uploaded_file = request.files.get("file")
+
+    if not uploaded_file or uploaded_file.filename == "":
+        return "Файл не выбран"
+
+    file_path = os.path.join(
+        PROTECTED_UPLOAD_FOLDER,
+        uploaded_file.filename
+    )
+
+    uploaded_file.save(file_path)
+
+    with open(
+        file_path,
+        "r",
+        encoding="utf-8",
+        errors="ignore"
+    ) as file:
+        file_text = file.read()
+
+    document = Document(
+        text=file_text,
+        type="защита",
+        filename=uploaded_file.filename,
+        file_path=file_path
+    )
+
+    db.session.add(document)
+    db.session.commit()
+
+    return redirect(url_for("protected_documents"))
+
+
+@app.route("/protected/<document_id>/download")
+def download_protected_document(document_id):
+
+    document = Document.query.get_or_404(document_id)
+
+    if document.type != "защита":
+        return "Документ не является защищаемым"
+
+    return send_file(
+        document.file_path,
+        as_attachment=True,
+        download_name=document.filename
+    )
+
+
+@app.route("/protected/<document_id>/delete", methods=["POST"])
+def delete_protected_document(document_id):
+
+    document = Document.query.get_or_404(document_id)
+
+    if document.type != "защита":
+        return "Документ не является защищаемым"
+
+    if document.file_path and os.path.exists(document.file_path):
+        os.remove(document.file_path)
+
+    db.session.delete(document)
+    db.session.commit()
+
+    return redirect(url_for("protected_documents"))
+
+
 if __name__ == "__main__":
-    app.run(debug=True)
+    app.run(
+        host="127.0.0.1",
+        port=5000,
+        debug=True
+    )

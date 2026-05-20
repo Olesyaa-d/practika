@@ -17,7 +17,12 @@ class Document(db.Model):
     )
 
     text = db.Column(db.Text, nullable=False)
+
     type = db.Column(db.String(20), nullable=False)
+
+    filename = db.Column(db.String(255), nullable=True)
+
+    file_path = db.Column(db.String(500), nullable=True)
 
     created_at = db.Column(
         db.DateTime,

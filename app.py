@@ -11,9 +11,19 @@ from flask import (
 
 from models import db, Document, ScanResult
 
-from scanner.pipeline.scanner_pipeline import ScannerPipeline
-from scanner.services.file_scanner import FileScanner
+from classifier.naive_bayes_classifier import (
+    NaiveBayesClassifier
+)
 
+from scanner.pipeline.scanner_pipeline import (
+    ScannerPipeline
+)
+
+from scanner.services.file_scanner import (
+    FileScanner
+)
+
+# Подстрой пути если нужно
 from scanner.scanners.email_scanner import EmailScanner
 from scanner.scanners.card_scanner import CardScanner
 from scanner.scanners.keyword_scanner import KeywordScanner
@@ -138,8 +148,11 @@ def scan_file():
 
     document = Document(
         text=file_text,
+
         type="scan",
+
         filename=uploaded_file.filename,
+
         file_path=file_path
     )
 
@@ -148,6 +161,8 @@ def scan_file():
     )
 
     db.session.commit()
+
+
 
     results = scanner.scan_file(
         file_path
@@ -183,7 +198,10 @@ def scan_file():
                 result.keywords
             )
 
+
+
     scan_result = ScanResult(
+
         document_id=document.id,
 
         emails=",".join(
@@ -205,7 +223,44 @@ def scan_file():
 
     db.session.commit()
 
+
+
+    training_documents = Document.query.filter(
+        Document.type.in_(
+            ["защита", "обычный"]
+        )
+    ).all()
+
+    available_types = set(
+        document.type
+        for document in training_documents
+    )
+
+    classification = None
+
+    if (
+            "защита" in available_types
+            and
+            "обычный" in available_types
+    ):
+
+        classifier = (
+            NaiveBayesClassifier()
+        )
+
+        classifier.train(
+            training_documents
+        )
+
+        classification = (
+            classifier.predict(
+                file_text
+            )
+        )
+
+
     return render_template(
+
         "result.html",
 
         filename=uploaded_file.filename,
@@ -214,7 +269,9 @@ def scan_file():
 
         cards=cards,
 
-        keywords=keywords
+        keywords=keywords,
+
+        classification=classification
     )
 
 
@@ -228,6 +285,7 @@ def protected_documents():
 
     return render_template(
         "protected_documents.html",
+
         documents=documents
     )
 
@@ -250,6 +308,7 @@ def upload_protected_document():
 
     file_path = os.path.join(
         PROTECTED_UPLOAD_FOLDER,
+
         uploaded_file.filename
     )
 
@@ -290,51 +349,6 @@ def upload_protected_document():
     )
 
 
-@app.route(
-    "/protected/<document_id>/download"
-)
-def download_protected_document(
-        document_id
-):
-
-    document = Document.query.get_or_404(
-        document_id
-    )
-
-    return send_file(
-        document.file_path,
-
-        as_attachment=True,
-
-        download_name=document.filename
-    )
-
-
-@app.route(
-    "/protected/<document_id>/delete",
-    methods=["POST"]
-)
-def delete_protected_document(
-        document_id
-):
-
-    document = Document.query.get_or_404(
-        document_id
-    )
-
-    db.session.delete(
-        document
-    )
-
-    db.session.commit()
-
-    return redirect(
-        url_for(
-            "protected_documents"
-        )
-    )
-
-
 
 @app.route("/regular")
 def regular_documents():
@@ -345,6 +359,7 @@ def regular_documents():
 
     return render_template(
         "regular_documents.html",
+
         documents=documents
     )
 
@@ -367,6 +382,7 @@ def upload_regular_document():
 
     file_path = os.path.join(
         REGULAR_UPLOAD_FOLDER,
+
         uploaded_file.filename
     )
 
@@ -407,54 +423,11 @@ def upload_regular_document():
     )
 
 
-@app.route(
-    "/regular/<document_id>/download"
-)
-def download_regular_document(
-        document_id
-):
-
-    document = Document.query.get_or_404(
-        document_id
-    )
-
-    return send_file(
-        document.file_path,
-
-        as_attachment=True,
-
-        download_name=document.filename
-    )
-
-
-@app.route(
-    "/regular/<document_id>/delete",
-    methods=["POST"]
-)
-def delete_regular_document(
-        document_id
-):
-
-    document = Document.query.get_or_404(
-        document_id
-    )
-
-    db.session.delete(
-        document
-    )
-
-    db.session.commit()
-
-    return redirect(
-        url_for(
-            "regular_documents"
-        )
-    )
-
 
 if __name__ == "__main__":
 
     app.run(
+
         host="127.0.0.1",
 
         port=5000,

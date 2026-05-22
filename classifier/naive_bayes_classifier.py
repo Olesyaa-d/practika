@@ -1,4 +1,5 @@
 import re
+import math
 
 from collections import defaultdict
 
@@ -36,6 +37,7 @@ class NaiveBayesClassifier:
 
         self.documents = defaultdict(int)
         self.words = defaultdict(lambda: defaultdict(int))
+        self.vocabulary = set()
 
     def extract_features(self, text):
         features = self.tokenizer.tokenize(text)
@@ -73,6 +75,7 @@ class NaiveBayesClassifier:
     def train(self, documents):
         self.documents.clear()
         self.words.clear()
+        self.vocabulary.clear()
 
         for document in documents:
             document_type = document.type
@@ -85,6 +88,7 @@ class NaiveBayesClassifier:
 
             for feature in features:
                 self.words[document_type][feature] += 1
+                self.vocabulary.add(feature)
 
     def type_probability(self, document_type):
         total_documents = sum(
@@ -110,13 +114,12 @@ class NaiveBayesClassifier:
             self.words[document_type].values()
         )
 
-        if total_words == 0:
-            return 0
+        vocabulary_size = len(self.vocabulary)
 
         return (
             word_count + 1
         ) / (
-            total_words + 1
+            total_words + vocabulary_size
         )
 
     def predict(self, text):
@@ -125,22 +128,29 @@ class NaiveBayesClassifier:
         scores = {}
 
         for document_type in self.documents.keys():
-            probability = self.type_probability(
-                document_type
-            )
+
+            prior = self.type_probability(document_type)
+
+            if prior == 0:
+                continue
+
+            score = math.log(prior)
 
             for feature in features:
-                probability *= self.conditional_word_probability(
+                probability = self.conditional_word_probability(
                     feature,
                     document_type
                 )
 
-            scores[document_type] = probability
+                score += math.log(probability)
+
+            scores[document_type] = score
 
         if not scores:
             return {
                 "predicted_type": None,
-                "scores": {}
+                "scores": {},
+                "probabilities": {}
             }
 
         predicted_type = max(
@@ -148,7 +158,27 @@ class NaiveBayesClassifier:
             key=scores.get
         )
 
+        probabilities = self.normalize_scores(
+            scores
+        )
+
         return {
             "predicted_type": predicted_type,
-            "scores": scores
+            "scores": scores,
+            "probabilities": probabilities
+        }
+
+    def normalize_scores(self, scores):
+        max_score = max(scores.values())
+
+        exp_scores = {
+            document_type: math.exp(score - max_score)
+            for document_type, score in scores.items()
+        }
+
+        total = sum(exp_scores.values())
+
+        return {
+            document_type: value / total
+            for document_type, value in exp_scores.items()
         }

@@ -3,161 +3,123 @@
 
 <head>
     <meta charset="UTF-8">
-    <title>
-        Результат анализа
-    </title>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            background: #f5f5f5;
-            margin: 0;
-            padding: 40px;
-        }
-        .container {
-            background: white;
-            max-width: 900px;
-            margin: auto;
-            padding: 30px;
-            border-radius: 12px;
-            box-shadow:
-                0 4px 10px rgba(0,0,0,0.1);
-        }
-        h1 {
-            margin-top: 0;
-        }
-        .block {
-            margin-top: 30px;
-            padding: 20px;
-            border:
-            1px solid #ddd;
-            border-radius: 10px;
-        }
-        ul {
-            padding-left: 20px;
-        }
-        button {
-            padding: 10px 20px;
-            cursor: pointer;
-            border: none;
-            border-radius: 8px;
-        }
-        a {
-            text-decoration: none;
-        }
-    </style>
+    <title>Результат анализа</title>
 </head>
-<body>
-<div class="container">
-    <h1>
-        Результат анализа файла
-    </h1>
-    <p>
-        <b>Файл:</b>
-        {{ filename }}
-    </p>
-    <div class="block">
-        <h2>
-            Классификация документа
-        </h2>
-        {% if classification %}
-            <p>
-                <b>
-                    Предполагаемый тип:
-                </b>
-                {{ classification.predicted_type }}
-            </p>
-            <h3>
-                Вероятности:
-            </h3>
-            <ul>
-            {% for doc_type, score in classification.scores.items() %}
-                <li>
-                    {{ doc_type }}
-                    :
-                    {{ score }}
-                </li>
-            {% endfor %}
-            </ul>
-        {% else %}
-            <p>
-                Классификация недоступна.
-            </p>
-            <p>
-                Для работы классификатора
-                нужно загрузить документы
-                типов:
-            </p>
-            <ul>
-                <li>
-                    защита
-                </li>
 
-                <li>
-                    обычный
-                </li>
+<body>
+
+    <h1>Результат анализа файла</h1>
+
+    <p>
+        <b>Файл:</b> {{ filename }}
+    </p>
+
+    <hr>
+
+    <h2>Классификация документа</h2>
+
+    {% if classification %}
+
+        <p>
+            <b>Предполагаемый тип:</b>
+            {{ classification.predicted_type }}
+        </p>
+
+        {% if classification.method %}
+            <p>
+                <b>Метод определения:</b>
+                {% if classification.method == "rules" %}
+                    Правила на основе найденных чувствительных данных
+                {% elif classification.method == "bayes" %}
+                    Байесовский классификатор
+                {% else %}
+                    {{ classification.method }}
+                {% endif %}
+            </p>
+        {% endif %}
+
+        {% if classification.reasons %}
+            <p>
+                <b>Причины:</b>
+            </p>
+
+            <ul>
+                {% for reason in classification.reasons %}
+                    <li>{{ reason }}</li>
+                {% endfor %}
             </ul>
         {% endif %}
-    </div>
-    <div class="block">
-        <h2>
-            Emails ({{ emails|length }})
-        </h2>
-        {% if emails %}
+
+        {% if classification.probabilities %}
+            <p>
+                <b>Вероятности:</b>
+            </p>
+
             <ul>
+                {% for document_type, probability in classification.probabilities.items() %}
+                    <li>
+                        {{ document_type }}:
+                        {{ "%.2f"|format(probability * 100) }}%
+                    </li>
+                {% endfor %}
+            </ul>
+        {% endif %}
+
+    {% else %}
+
+        <p>
+            Классификация недоступна.
+            Для работы классификатора нужно загрузить документы типов
+            «защита» и «обычный».
+        </p>
+
+    {% endif %}
+
+    <hr>
+
+    <h2>Email-адреса ({{ emails|length }})</h2>
+
+    {% if emails %}
+        <ul>
             {% for email in emails %}
-                <li>
-                    {{ email }}
-                </li>
+                <li>{{ email }}</li>
             {% endfor %}
-            </ul>
-        {% else %}
-            <p>
-                Не найдено
-            </p>
-        {% endif %}
-    </div>
-    <div class="block">
-        <h2>
-            Cards ({{ cards|length }})
-        </h2>
-        {% if cards %}
-            <ul>
+        </ul>
+    {% else %}
+        <p>Не найдено</p>
+    {% endif %}
+
+    <h2>Номера карт ({{ cards|length }})</h2>
+
+    {% if cards %}
+        <ul>
             {% for card in cards %}
-                <li>
-                    {{ card }}
-                </li>
+                <li>{{ card }}</li>
             {% endfor %}
-            </ul>
-        {% else %}
-            <p>
-                Не найдено
-            </p>
-        {% endif %}
-    </div>
-    <div class="block">
-        <h2>
-            Keywords ({{ keywords|length }})
-        </h2>
-        {% if keywords %}
-            <ul>
+        </ul>
+    {% else %}
+        <p>Не найдено</p>
+    {% endif %}
+
+    <h2>Ключевые слова ({{ keywords|length }})</h2>
+
+    {% if keywords %}
+        <ul>
             {% for keyword in keywords %}
-                <li>
-                    {{ keyword }}
-                </li>
+                <li>{{ keyword }}</li>
             {% endfor %}
-            </ul>
-        {% else %}
-            <p>
-                Не найдено
-            </p>
-        {% endif %}
-    </div>
+        </ul>
+    {% else %}
+        <p>Не найдено</p>
+    {% endif %}
+
     <br>
+
     <a href="/">
         <button>
-            Назад
+            Проверить другой файл
         </button>
     </a>
-</div>
+
 </body>
 </html>

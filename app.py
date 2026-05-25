@@ -535,6 +535,37 @@ def delete_regular_document(id):
         )
     )
 
+@app.route("/history")
+def scan_history():
+
+    scan_results = ScanResult.query.order_by(
+        ScanResult.created_at.desc()
+    ).all()
+
+    return render_template(
+        "history.html",
+        scan_results=scan_results
+    )
+
+@app.route("/history/<int:result_id>/delete", methods=["POST"])
+def delete_scan_history(result_id):
+
+    scan_result = ScanResult.query.get_or_404(result_id)
+
+    document = scan_result.document
+
+    db.session.delete(scan_result)
+
+    if document and document.type == "scan":
+
+        if document.file_path and os.path.exists(document.file_path):
+            os.remove(document.file_path)
+
+        db.session.delete(document)
+
+    db.session.commit()
+
+    return redirect(url_for("scan_history"))
 
 if __name__ == "__main__":
 

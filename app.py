@@ -206,30 +206,6 @@ def scan_file():
             )
 
 
-    scan_result = ScanResult(
-
-        document_id=document.id,
-
-        emails=",".join(
-            emails
-        ),
-
-        cards=",".join(
-            cards
-        ),
-
-        keywords=",".join(
-            keywords
-        )
-    )
-
-    db.session.add(
-        scan_result
-    )
-
-    db.session.commit()
-
-
     classification = None
 
     protection_reasons = []
@@ -274,9 +250,6 @@ def scan_file():
 
     else:
 
-        # ------------------
-        # BAYES
-        # ------------------
 
         training_documents = (
             Document.query.filter(
@@ -335,6 +308,21 @@ def scan_file():
                 "использован байесовский классификатор"
             ]
 
+    predicted_type = None
+
+    if classification:
+        predicted_type = classification.get("predicted_type")
+
+    scan_result = ScanResult(
+        document_id=document.id,
+        emails=",".join(emails),
+        cards=",".join(cards),
+        keywords=",".join(keywords),
+        predicted_type=predicted_type
+    )
+
+    db.session.add(scan_result)
+    db.session.commit()
 
     return render_template(
 
@@ -566,6 +554,57 @@ def delete_scan_history(result_id):
     db.session.commit()
 
     return redirect(url_for("scan_history"))
+@app.route("/history/<int:result_id>/download")
+def download_scan_report(result_id):
+
+    scan_result = ScanResult.query.get_or_404(result_id)
+
+    document = scan_result.document
+
+    report_text = f"""
+Отчёт проверки документа
+
+Файл: {document.filename if document else "неизвестно"}
+Дата проверки: {scan_result.created_at}
+Категория: {scan_result.predicted_type if scan_result.predicted_type else "не определена"}
+
+Email:
+{scan_result.emails if scan_result.emails else "не найдено"}
+
+Номера карт:
+{scan_result.cards if scan_result.cards else "не найдено"}
+
+Ключевые слова:
+{scan_result.keywords if scan_result.keywords else "не найдено"}
+"""
+
+    reports_folder = os.path.join(
+        UPLOAD_FOLDER,
+        "reports"
+    )
+
+    os.makedirs(
+        reports_folder,
+        exist_ok=True
+    )
+
+    report_path = os.path.join(
+        reports_folder,
+        f"report_{scan_result.id}.txt"
+    )
+
+    with open(
+        report_path,
+        "w",
+        encoding="utf-8"
+    ) as file:
+        file.write(report_text)
+
+    return send_file(
+        report_path,
+        as_attachment=True,
+        download_name=f"report_{scan_result.id}.txt"
+    )
 
 if __name__ == "__main__":
 

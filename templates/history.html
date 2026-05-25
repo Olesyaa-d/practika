@@ -77,6 +77,7 @@
             <tr>
                 <th>Файл</th>
                 <th>Дата</th>
+                <th>Категория</th>
                 <th>Email</th>
                 <th>Карты</th>
                 <th>Ключевые слова</th>
@@ -98,6 +99,10 @@
                     </td>
 
                     <td>
+                        {{ result.predicted_type if result.predicted_type else "—" }}
+                    </td>
+
+                    <td>
                         {{ result.emails if result.emails else "—" }}
                     </td>
 
@@ -110,9 +115,16 @@
                     </td>
 
                     <td>
+                        <a href="/history/{{ result.id }}/download">
+                            <button type="button">
+                                Скачать
+                            </button>
+                        </a>
+
                         <form
                             action="/history/{{ result.id }}/delete"
                             method="post"
+                            style="display:inline;"
                             onsubmit="return confirm('Удалить этот отчёт?');"
                         >
                             <button class="delete-btn" type="submit">

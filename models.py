@@ -52,6 +52,11 @@ class ScanResult(db.Model):
     cards = db.Column(db.Text)
     keywords = db.Column(db.Text)
 
+    predicted_type = db.Column(
+        db.String(50), 
+        nullable=True
+    )
+
     created_at = db.Column(
         db.DateTime,
         default=datetime.utcnow

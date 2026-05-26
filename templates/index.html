@@ -1,102 +1,113 @@
-<!DOCTYPE html>
-<html lang="ru">
+{% extends "base.html" %}
 
-<head>
-    <meta charset="UTF-8">
-    <title>File Scanner</title>
+{% block title %}
+Проверка документа
+{% endblock %}
 
-    <style>
+{% block content %}
 
-        body {
-            font-family: Arial, sans-serif;
-            background: #ffb9ef;
+<style>
+.upload-card {
+    max-width: 750px;
+    margin: auto;
+    padding: 40px;
+    border-radius: 18px;
+    background: white;
+}
 
-            display: flex;
-            justify-content: center;
-            align-items: center;
+.upload-title {
+    margin-top: 0;
+    font-size: 32px;
+}
 
-            height: 100vh;
-            margin: 0;
-        }
+.description {
+    color: #555;
+    margin-bottom: 25px;
+}
 
-        .container {
+.features {
+    background: #f5f6fa;
+    border-radius: 10px;
+    padding: 20px;
+    margin-bottom: 30px;
+}
 
-            background: white;
+.features ul {
+    margin: 0;
+    padding-left: 20px;
+}
 
-            padding: 40px;
+.features li {
+    margin-bottom: 10px;
+}
 
-            border-radius: 12px;
+.file-label {
+    display: inline-block;
+    background: #2563eb;
+    color: white;
+    padding: 14px 22px;
+    border-radius: 10px;
+    cursor: pointer;
+}
 
-            box-shadow:
-                0 4px 12px rgba(0,0,0,0.1);
+input[type=file] {
+    display: none;
+}
 
-            width: 450px;
+#submitButton {
+    display: none;
+    margin-top: 20px;
+    padding: 14px 22px;
+    border: none;
+    border-radius: 10px;
+    background: #16a34a;
+    color: white;
+    font-size: 15px;
+}
 
-            text-align: center;
-        }
-
-        h1 {
-            margin-bottom: 10px;
-        }
-
-        p {
-            color: rgb(145, 145, 145);
-            margin-bottom: 30px;
-        }
-
-        input[type=file] {
-
-            margin-bottom: 20px;
-
-            width: 100%;
-        }
-
-        button {
-
-            padding: 10px 20px;
-
-            border: none;
-
-            border-radius: 8px;
-
-            cursor: pointer;
-
-            font-size: 16px;
-        }
-
-        button:hover {
-            opacity: 0.9;
-        }
-
-        .section {
-
-            margin-top: 30px;
-        }
-
-        .link-button {
-
-            display: inline-block;
-
-            margin-top: 15px;
-
-            text-decoration: none;
-        }
-
-    </style>
-
-</head>
+.selected-file {
+    margin-top: 15px;
+    color: #555;
+}
+</style>
 
 
-<body>
+<div class="upload-card">
 
-<div class="container">
+    <h1 class="upload-title">
+        Проверка документа
+    </h1>
 
-    <h1>Анализ документа</h1>
-
-    <p>
-        Загрузите файл для поиска email,
-        номеров карт и ключевых слов
+    <p class="description">
+        Загрузите текстовый файл для анализа.
     </p>
+
+    <div class="features">
+
+        <b>
+            Во время проверки программа определяет:
+        </b>
+
+        <ul>
+            <li>Email-адреса</li>
+
+            <li>Номера банковских карт</li>
+
+            <li>
+                Ключевые слова
+                (пароль, логин, секретно и др.)
+            </li>
+
+            <li>
+                Предполагаемый тип документа
+            </li>
+
+            <li>
+                Наличие чувствительных данных
+            </li>
+        </ul>
+
+    </div>
 
 
     <form
@@ -105,71 +116,80 @@
         enctype="multipart/form-data"
     >
 
+        <label
+            for="fileInput"
+            class="file-label"
+        >
+            Выбрать файл
+        </label>
+
         <input
+            id="fileInput"
             type="file"
             name="file"
+            accept=".txt"
             required
         >
 
-        <br>
+        <div
+            class="selected-file"
+            id="selectedFile"
+        >
+        </div>
 
-        <button type="submit">
-
-            Проверить файл
-
+        <button
+            id="submitButton"
+            type="submit"
+        >
+            Проверить документ
         </button>
 
     </form>
 
-
-    <div class="section">
-
-        <hr>
-
-        <h3>
-
-            Защищаемые документы
-
-        </h3>
-
-        <p>
-
-            Загрузка эталонных документов
-            для формирования базы защиты
-
-        </p>
-
-
-        <a
-            href="/protected"
-            class="link-button"
-        >
-
-            <button>
-
-                Открыть список документов
-
-            </button>
-
-        </a>
-
-        <a 
-            href="/regular" 
-            class="link-button"
-        >
-            <button>
-                Открыть обычные документы
-            </button>
-        </a>
-
-        <a href="/history">
-            <button>История проверок</button>
-        </a>
-
-    </div>
-
-
 </div>
 
-</body>
-</html>
+
+<script>
+
+const input =
+document.getElementById(
+    "fileInput"
+);
+
+const button =
+document.getElementById(
+    "submitButton"
+);
+
+const text =
+document.getElementById(
+    "selectedFile"
+);
+
+
+input.addEventListener(
+    "change",
+
+    function () {
+
+        if (
+            input.files.length > 0
+        ) {
+
+            text.innerHTML =
+                "Выбран файл: <b>"
+                +
+                input.files[0].name
+                +
+                "</b>";
+
+            button.style.display =
+                "block";
+        }
+
+    }
+);
+
+</script>
+
+{% endblock %}

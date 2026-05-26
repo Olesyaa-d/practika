@@ -1,125 +1,310 @@
-<!DOCTYPE html>
-<html lang="ru">
+{% extends "base.html" %}
 
-<head>
-    <meta charset="UTF-8">
-    <title>Результат анализа</title>
-</head>
+{% block title %}
+Результат анализа
+{% endblock %}
 
-<body>
+{% block content %}
 
-    <h1>Результат анализа файла</h1>
+<style>
+.page-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 30px;
+}
 
-    <p>
-        <b>Файл:</b> {{ filename }}
-    </p>
+.btn {
+    padding: 10px 16px;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    text-decoration: none;
+    color: white;
+    background: #2563eb;
+}
 
-    <hr>
+.btn-secondary {
+    background: #6b7280;
+}
 
-    <h2>Классификация документа</h2>
+.analysis-block {
+    background: #f5f6fa;
+    border-radius: 12px;
+    padding: 20px;
+    margin-bottom: 20px;
+}
+
+.analysis-title {
+    margin-top: 0;
+    margin-bottom: 15px;
+}
+
+.result-list {
+    margin: 0;
+    padding-left: 20px;
+}
+
+.result-list li {
+    margin-bottom: 8px;
+}
+
+.badge {
+    display: inline-block;
+    padding: 6px 12px;
+    border-radius: 20px;
+    color: white;
+    font-size: 14px;
+}
+
+.badge-protected {
+    background: #dc2626;
+}
+
+.badge-regular {
+    background: #16a34a;
+}
+
+.empty {
+    color: #777;
+}
+</style>
+
+
+<div class="page-header">
+
+    <div>
+        <h1>
+            Результат анализа
+        </h1>
+
+        <p>
+            <b>Файл:</b>
+            {{ filename }}
+        </p>
+    </div>
+
+    <a
+        href="/"
+        class="btn btn-secondary"
+    >
+        На главную
+    </a>
+
+</div>
+
+
+<div class="analysis-block">
+
+    <h2 class="analysis-title">
+        Классификация документа
+    </h2>
 
     {% if classification %}
 
         <p>
-            <b>Предполагаемый тип:</b>
-            {{ classification.predicted_type }}
+
+            <b>
+                Предполагаемый тип:
+            </b>
+
+            {% if classification.predicted_type == "защита" %}
+
+                <span
+                    class="
+                    badge
+                    badge-protected
+                    "
+                >
+                    ЗАЩИТА
+                </span>
+
+            {% else %}
+
+                <span
+                    class="
+                    badge
+                    badge-regular
+                    "
+                >
+                    ОБЫЧНЫЙ
+                </span>
+
+            {% endif %}
+
         </p>
 
-        {% if classification.method %}
-            <p>
-                <b>Метод определения:</b>
-                {% if classification.method == "rules" %}
-                    Правила на основе найденных чувствительных данных
-                {% elif classification.method == "bayes" %}
-                    Байесовский классификатор
-                {% else %}
-                    {{ classification.method }}
-                {% endif %}
-            </p>
-        {% endif %}
 
         {% if classification.reasons %}
+
             <p>
-                <b>Причины:</b>
+                <b>
+                    Причины:
+                </b>
             </p>
 
-            <ul>
+            <ul class="result-list">
+
                 {% for reason in classification.reasons %}
-                    <li>{{ reason }}</li>
+
+                    <li>
+                        {{ reason }}
+                    </li>
+
                 {% endfor %}
+
             </ul>
+
         {% endif %}
 
+
         {% if classification.probabilities %}
+
             <p>
-                <b>Вероятности:</b>
+                <b>
+                    Вероятности:
+                </b>
             </p>
 
-            <ul>
-                {% for document_type, probability in classification.probabilities.items() %}
+            <ul class="result-list">
+
+                {% for type, probability
+                in classification.probabilities.items() %}
+
                     <li>
-                        {{ document_type }}:
-                        {{ "%.2f"|format(probability * 100) }}%
+
+                        {{ type }}
+
+                        :
+
+                        {{ "%.2f"|format(
+                            probability * 100
+                        ) }}
+
+                        %
+
                     </li>
+
                 {% endfor %}
+
             </ul>
+
         {% endif %}
 
     {% else %}
 
-        <p>
-            Классификация недоступна.
-            Для работы классификатора нужно загрузить документы типов
-            «защита» и «обычный».
+        <p class="empty">
+            Недостаточно обучающих данных
+            для классификатора.
         </p>
 
     {% endif %}
 
-    <hr>
+</div>
 
-    <h2>Email-адреса ({{ emails|length }})</h2>
+
+<div class="analysis-block">
+
+    <h2 class="analysis-title">
+
+        Email-адреса
+
+        ({{ emails|length }})
+
+    </h2>
 
     {% if emails %}
-        <ul>
+
+        <ul class="result-list">
+
             {% for email in emails %}
-                <li>{{ email }}</li>
+
+                <li>
+                    {{ email }}
+                </li>
+
             {% endfor %}
+
         </ul>
+
     {% else %}
-        <p>Не найдено</p>
+
+        <p class="empty">
+            Не найдено
+        </p>
+
     {% endif %}
 
-    <h2>Номера карт ({{ cards|length }})</h2>
+</div>
+
+
+<div class="analysis-block">
+
+    <h2 class="analysis-title">
+
+        Номера карт
+
+        ({{ cards|length }})
+
+    </h2>
 
     {% if cards %}
-        <ul>
+
+        <ul class="result-list">
+
             {% for card in cards %}
-                <li>{{ card }}</li>
+
+                <li>
+                    {{ card }}
+                </li>
+
             {% endfor %}
+
         </ul>
+
     {% else %}
-        <p>Не найдено</p>
+
+        <p class="empty">
+            Не найдено
+        </p>
+
     {% endif %}
 
-    <h2>Ключевые слова ({{ keywords|length }})</h2>
+</div>
+
+
+<div class="analysis-block">
+
+    <h2 class="analysis-title">
+
+        Ключевые слова
+
+        ({{ keywords|length }})
+
+    </h2>
 
     {% if keywords %}
-        <ul>
+
+        <ul class="result-list">
+
             {% for keyword in keywords %}
-                <li>{{ keyword }}</li>
+
+                <li>
+                    {{ keyword }}
+                </li>
+
             {% endfor %}
+
         </ul>
+
     {% else %}
-        <p>Не найдено</p>
+
+        <p class="empty">
+            Не найдено
+        </p>
+
     {% endif %}
 
-    <br>
+</div>
 
-    <a href="/">
-        <button>
-            Проверить другой файл
-        </button>
-    </a>
-
-</body>
-</html>
+{% endblock %}

@@ -1,60 +1,104 @@
-<!DOCTYPE html>
-<html lang="ru">
-<head>
-    <meta charset="UTF-8">
-    <title>Обычные документы</title>
-</head>
-<body>
+{% extends "base.html" %}
 
-    <h1>Обычные документы</h1>
+{% block title %}
+Обычные документы
+{% endblock %}
 
-    <a href="/regular/upload">
-        <button>Загрузить обычный документ</button>
-    </a>
+{% block content %}
 
-    <hr>
+<style>
+.page-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 25px;
+}
 
-    {% if documents %}
+.actions {
+    display: flex;
+    gap: 10px;
+}
 
-        <ul>
-            {% for document in documents %}
-                <li>
-                    <b>{{ document.filename }}</b>
-                    <br>
-                    Тип: {{ document.type }}
-                    <br>
-                    Дата загрузки: {{ document.created_at }}
+.btn {
+    padding: 10px 16px;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    text-decoration: none;
+    color: white;
+    background: #2563eb;
+}
 
-                    <br><br>
+.btn-secondary {
+    background: #6b7280;
+}
 
-                    <a href="/regular/{{ document.id }}/download">
-                        Скачать
-                    </a>
+.btn-danger {
+    background: #dc2626;
+}
 
-                    <form
-                        action="/regular/{{ document.id }}/delete"
-                        method="post"
-                        style="display:inline;"
-                    >
-                        <button type="submit">
-                            Удалить
-                        </button>
-                    </form>
-                </li>
+.document-card {
+    background: #f5f6fa;
+    padding: 18px;
+    border-radius: 12px;
+    margin-bottom: 15px;
+}
 
-                <hr>
-            {% endfor %}
-        </ul>
+.document-title {
+    font-weight: bold;
+    font-size: 18px;
+    margin-bottom: 8px;
+}
 
-    {% else %}
+.document-meta {
+    color: #555;
+    margin-bottom: 12px;
+}
+</style>
 
-        <p>Обычные документы пока не загружены.</p>
+<div class="page-header">
+    <div>
+        <h1>Обычные документы</h1>
+        <p>Эталонные документы, которые не относятся к объектам защиты.</p>
+    </div>
 
-    {% endif %}
+    <div class="actions">
+        <a href="/" class="btn btn-secondary">На главную</a>
+        <a href="/regular/upload" class="btn">Загрузить документ</a>
+    </div>
+</div>
 
-    <br>
+{% if documents %}
+    {% for document in documents %}
+        <div class="document-card">
+            <div class="document-title">
+                {{ document.filename }}
+            </div>
 
-    <a href="/">На главную</a>
+            <div class="document-meta">
+                Тип: {{ document.type }}<br>
+                Дата загрузки: {{ document.created_at }}
+            </div>
 
-</body>
-</html>
+            <div class="actions">
+                <a href="/regular/{{ document.id }}/download" class="btn">
+                    Скачать
+                </a>
+
+                <form
+                    action="/regular/{{ document.id }}/delete"
+                    method="post"
+                    onsubmit="return confirm('Удалить документ?');"
+                >
+                    <button class="btn btn-danger" type="submit">
+                        Удалить
+                    </button>
+                </form>
+            </div>
+        </div>
+    {% endfor %}
+{% else %}
+    <p>Обычные документы пока не загружены.</p>
+{% endif %}
+
+{% endblock %}

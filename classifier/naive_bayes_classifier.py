@@ -89,6 +89,7 @@ class NaiveBayesClassifier:
             for feature in features:
                 self.words[document_type][feature] += 1
                 self.vocabulary.add(feature)
+ 
 
     def type_probability(self, document_type):
         total_documents = sum(
